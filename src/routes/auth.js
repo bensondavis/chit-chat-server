@@ -1,9 +1,11 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+import User from "../db/models/User";
+import jwt from "jsonwebtoken";
+import express from "express";
+
 const router = express.Router();
 
 router.post("/register", async (req, res) => {
+  console.log("hello there");
   const { username, email, password } = req.body;
   try {
     const existingUser = await User.findOne({ email });
@@ -39,4 +41,4 @@ router.post("/login", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
