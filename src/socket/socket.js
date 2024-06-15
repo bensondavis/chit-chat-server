@@ -31,11 +31,6 @@ io.on('connection', (socket) => {
       await User.findOneAndUpdate({username: userId}, { socketId: socket.id });
     });
   
-    socket.on('deleteMessage', async (messageId) => {
-      await Message.findByIdAndDelete(messageId);
-      io.emit('deleteMessage', messageId);
-    });
-  
     socket.on('disconnect', async () => {
       console.log('Client disconnected');
       await User.findOneAndUpdate({ socketId: socket.id }, { socketId: null });
