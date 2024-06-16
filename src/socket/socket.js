@@ -23,18 +23,31 @@ const io = new Server(server, {
   },
 });
 
-io.on('connection', (socket) => {
-    console.log("a user connected");
-  
-    socket.on('registerSocket', async (userId) => {
-        console.log(`event -> registerSocket, userId: ${userId}`)
-      await User.findOneAndUpdate({username: userId}, { socketId: socket.id });
-    });
-  
-    socket.on('disconnect', async () => {
-      console.log('Client disconnected');
-      await User.findOneAndUpdate({ socketId: socket.id }, { socketId: null });
-    });
-  })
+io.on("connection", (socket) => {
+  console.log("a user connected");
 
-export {app, io, server};
+  socket.on("registerSocket", async (userId) => {
+    await User.findOneAndUpdate({ username: userId }, { socketId: socket.id });
+  });
+
+  socket.on("callUser", async (data) => {
+    const user = await User.findOne({ username: data.userToCall });
+    const meUser = await User.findOne({ username: data.name });
+    io.to(user?.socketId).emit("callUser", {
+      signal: data.signalData,
+      from: meUser.socketId,
+      name: meUser.username,
+    });
+  });
+
+  socket.on("answerCall", (data) => {
+    io.to(data.to).emit("callAccepted", data.signal);
+  });
+
+  socket.on("disconnect", async () => {
+    console.log("Client disconnected");
+    await User.findOneAndUpdate({ socketId: socket.id }, { socketId: null });
+  });
+});
+
+export { app, io, server };

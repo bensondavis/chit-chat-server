@@ -35,21 +35,14 @@ const deleteMessage = async (req, res) => {
       username: message.recipient,
     }).exec();
     const twoMinutesAgo = new Date(new Date().getTime() - 2 * 60 * 1000);
-    console.log(
-      id,
-      { message, twoMinutesAgo },
-      message.createdAt > twoMinutesAgo
-    );
     if (message && message.createdAt > twoMinutesAgo) {
       await message.deleteOne();
       io.to(recipient?.socketId).emit("deleteMessage", id);
       res.status(200).json({ message: "Message deleted" });
     } else {
-      return res
-        .status(400)
-        .json({
-          message: "Message is older than 2 minutes and cannot be deleted.",
-        });
+      return res.status(400).json({
+        message: "Message is older than 2 minutes and cannot be deleted.",
+      });
     }
   } catch (error) {
     res.status(400).json({ error: error.message });

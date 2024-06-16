@@ -20,8 +20,8 @@ const addContacts = async (req, res) => {
   const { id } = req.params;
   const username = req.username;
 
-  if(username === id) {
-    return res.status(418).json({message: "Cannot add same user"});
+  if (username === id) {
+    return res.status(418).json({ message: "Cannot add same user" });
   }
 
   try {
@@ -35,7 +35,7 @@ const addContacts = async (req, res) => {
         currentUser.contactList.push({ contactId: id });
         currentUser.save();
       } else {
-        return res.status(409).json({message: "User already added"});
+        return res.status(409).json({ message: "User already added" });
       }
 
       const UserAlreadyInRecipientsContact = user.contactList.some(
@@ -47,7 +47,6 @@ const addContacts = async (req, res) => {
       }
       return res.json({ message: "User added successfully" });
     } else {
-      console.log("no user found");
       return res.status(400).json({ error: "no user found" });
     }
   } catch (error) {

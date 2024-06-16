@@ -18,7 +18,6 @@ const register = async (req, res) => {
       email,
       password,
     });
-    console.log({user});
     await user.save();
     res.status(201).json({ message: "User registered" });
   } catch (error) {
@@ -30,7 +29,6 @@ const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    console.log({ user });
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
