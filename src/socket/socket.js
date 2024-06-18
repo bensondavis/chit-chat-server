@@ -12,13 +12,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      `${
-        process.env.SERVER_ENV === "production"
-          ? process.env.CLIENT_URL
-          : "http://localhost:3000"
-      }`,
-    ],
+    origin: [process.env.CLIENT_URL],
     methods: ["GET", "POST", "DELETE"],
   },
 });
@@ -32,16 +26,22 @@ io.on("connection", (socket) => {
 
   socket.on("callUser", async (data) => {
     const user = await User.findOne({ username: data.userToCall });
-    const meUser = await User.findOne({ username: data.name });
+    const callFromUser = await User.findOne({ username: data.name });
+
     io.to(user?.socketId).emit("callUser", {
       signal: data.signalData,
-      from: meUser.socketId,
-      name: meUser.username,
+      from: callFromUser.socketId,
+      name: callFromUser.username,
+      isVideoCall: data.isVideoCall,
     });
   });
 
   socket.on("answerCall", (data) => {
     io.to(data.to).emit("callAccepted", data.signal);
+  });
+
+  socket.on("endCall", (data) => {
+    io.to(data.to).emit("endCall");
   });
 
   socket.on("disconnect", async () => {
