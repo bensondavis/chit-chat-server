@@ -3,7 +3,6 @@ import http from "http";
 import { Server } from "socket.io";
 
 //models
-import Message from "../db/models/Message";
 import User from "../db/models/User";
 
 const app = express();
@@ -12,7 +11,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [process.env.CLIENT_URL],
+    origin: "http://localhost:3000",
     methods: ["GET", "POST", "DELETE"],
   },
 });
@@ -26,12 +25,11 @@ io.on("connection", (socket) => {
 
   socket.on("callUser", async (data) => {
     const user = await User.findOne({ username: data.userToCall });
-    const callFromUser = await User.findOne({ username: data.name });
 
     io.to(user?.socketId).emit("callUser", {
       signal: data.signalData,
-      from: callFromUser.socketId,
-      name: callFromUser.username,
+      from: socket.id,
+      name: data.name,
       isVideoCall: data.isVideoCall,
     });
   });
@@ -41,7 +39,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("endCall", (data) => {
-    io.to(data.to).emit("endCall");
+    io.to([data.to, socket.id]).emit("endCall");
   });
 
   socket.on("disconnect", async () => {

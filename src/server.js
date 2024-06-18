@@ -29,8 +29,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use("/api/auth", auth);
 app.use("/api/chat", AuthenticateToken, chat);
 app.use("/api/contacts", AuthenticateToken, contacts);
-app.get("/api/ping", AuthenticateToken, async (req, res) => {
-  res.status(200).json({ message: "server is online" });
+app.get("/ping", async (req, res) => {
+  res.status(200).send("ok");
 });
 
 server.listen(port, () => {
