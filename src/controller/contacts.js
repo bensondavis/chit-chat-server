@@ -1,4 +1,5 @@
 import User from "../db/models/User";
+import { io } from "../socket/socket";
 
 const getContacts = async (req, res) => {
   const username = req.username;
@@ -45,9 +46,11 @@ const addContacts = async (req, res) => {
         user.contactList.push({ contactId: username });
         user.save();
       }
+
+      io.to(user?.socketId).emit("newContact", currentUser.username);
       return res.json({ message: "User added successfully" });
     } else {
-      return res.status(400).json({ error: "no user found" });
+      return res.status(400).json({ message: "no user found" });
     }
   } catch (error) {
     res.status(400).json({ error: error.message });
